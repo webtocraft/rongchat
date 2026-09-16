@@ -1,0 +1,6 @@
+{
+  "name": "Rong Social Network",
+  "description": "একটি সুপারফাস্ট ইনস্ট্যান্ট লোডিং সোশ্যাল প্ল্যাটফর্ম — পোস্ট ও স্টোরি, নিজস্ব পোস্ট এডিট ও ডিলিট, /#username হ্যান্ডেল প্রোফাইল, ইনবক্স ও গ্লোবাল চ্যাট, পুশ নোটিফিকেশন ও এডমিন প্যানেল।",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
