@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { db } from './services/storage';
 import { sound } from './services/sound';
+import { realtime } from './services/realtime';
 import { User, Post, Story, Message, AppNotification } from './types';
 import { toBanglaNumber } from './utils/format';
 
@@ -20,10 +21,15 @@ import { EditProfileModal } from './components/EditProfileModal';
 import { AdminPanel } from './components/AdminPanel';
 import { SearchModal } from './components/SearchModal';
 import { NotificationsView } from './components/NotificationsView';
-import { SwitchAccountModal } from './components/SwitchAccountModal';
 import { SettingsModal } from './components/SettingsModal';
+import { GoogleSheetCodeModal } from './components/GoogleSheetCodeModal';
+import { AuthModal } from './components/AuthModal';
+import { AuthScreen } from './components/AuthScreen';
+import { GamesView } from './components/GamesView';
+import { LiveRadioView } from './components/LiveRadioView';
+import { LiveTVView } from './components/LiveTVView';
 
-type ActiveTab = 'feed' | 'global_chat' | 'inbox' | 'profile' | 'admin' | 'notifications';
+type ActiveTab = 'feed' | 'global_chat' | 'inbox' | 'games' | 'radio' | 'tv' | 'profile' | 'admin' | 'notifications';
 
 export default function App() {
   // Sync state reactively with zero lag
@@ -37,11 +43,11 @@ export default function App() {
   const posts = db.getPosts();
   const stories = db.getStories();
   const globalMessages = db.getGlobalMessages();
-  const notifications = db.getNotifications();
+  const notifications = currentUser ? db.getNotifications() : [];
   const reports = db.getReports();
   const settings = db.getSettings();
-  const unreadMessagesCount = db.getTotalUnreadPrivateMessages();
-  const unreadNotificationsCount = db.getUnreadNotificationsCount();
+  const unreadMessagesCount = currentUser ? db.getTotalUnreadPrivateMessages() : 0;
+  const unreadNotificationsCount = currentUser ? db.getUnreadNotificationsCount() : 0;
 
   // Navigation & View state
   const [activeTab, setActiveTab] = useState<ActiveTab>('feed');
@@ -54,11 +60,18 @@ export default function App() {
   const [showCreateStory, setShowCreateStory] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
-  const [showSwitchAccount, setShowSwitchAccount] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authDefaultMode, setAuthDefaultMode] = useState<'login' | 'register'>('login');
   const [showSettings, setShowSettings] = useState(false);
+  const [showGasModal, setShowGasModal] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('rsn_theme') as 'light' | 'dark') || 'light';
   });
+
+  // Initialize realtime live broker sync
+  useEffect(() => {
+    realtime.init();
+  }, []);
 
   // Apply dark mode class to html document
   useEffect(() => {
@@ -82,6 +95,24 @@ export default function App() {
 
       if (hash === '#global-chat') {
         setActiveTab(prev => (prev === 'global_chat' ? prev : 'global_chat'));
+        setViewingProfileUsername(prev => (prev === null ? prev : null));
+        return;
+      }
+
+      if (hash === '#games') {
+        setActiveTab(prev => (prev === 'games' ? prev : 'games'));
+        setViewingProfileUsername(prev => (prev === null ? prev : null));
+        return;
+      }
+
+      if (hash === '#radio') {
+        setActiveTab(prev => (prev === 'radio' ? prev : 'radio'));
+        setViewingProfileUsername(prev => (prev === null ? prev : null));
+        return;
+      }
+
+      if (hash === '#tv') {
+        setActiveTab(prev => (prev === 'tv' ? prev : 'tv'));
         setViewingProfileUsername(prev => (prev === null ? prev : null));
         return;
       }
@@ -169,7 +200,7 @@ export default function App() {
       window.location.hash = '';
       setViewingProfileUsername(null);
     } else if (tab === 'profile') {
-      handleNavigateProfile(currentUser.username);
+      if (currentUser) handleNavigateProfile(currentUser.username);
     } else if (tab === 'global_chat') {
       window.location.hash = '#global-chat';
     } else if (tab === 'inbox') {
@@ -178,6 +209,20 @@ export default function App() {
       window.location.hash = '#admin';
     }
   };
+
+  // If no user is logged in, show the clean Auth Screen
+  if (!currentUser) {
+    return (
+      <AuthScreen
+        theme={theme}
+        onToggleTheme={() => setTheme(prev => (prev === 'dark' ? 'light' : 'dark'))}
+        onSuccess={() => {
+          window.location.hash = '';
+          setActiveTab('feed');
+        }}
+      />
+    );
+  }
 
   // Filtered posts for feed
   const displayPosts = feedFilter === 'following'
@@ -258,8 +303,17 @@ export default function App() {
           }, 50);
         }}
         onOpenCreateStory={() => setShowCreateStory(true)}
-        onOpenSwitchAccount={() => setShowSwitchAccount(true)}
+        onLogout={() => {
+          if (window.confirm('আপনি কি একাউন্ট থেকে লগআউট করতে চান?')) {
+            db.logout();
+          }
+        }}
+        onOpenAuthModal={(mode) => {
+          setAuthDefaultMode(mode || 'login');
+          setShowAuthModal(true);
+        }}
         onNavigateProfile={handleNavigateProfile}
+        onOpenGasModal={() => setShowGasModal(true)}
         theme={theme}
         onToggleTheme={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
       />
@@ -275,7 +329,11 @@ export default function App() {
           unreadNotificationsCount={unreadNotificationsCount}
           onOpenSearch={() => setShowSearchModal(true)}
           onOpenSettings={() => setShowSettings(true)}
-          onOpenSwitchAccount={() => setShowSwitchAccount(true)}
+          onLogout={() => {
+            if (window.confirm('আপনি কি একাউন্ট থেকে লগআউট করতে চান?')) {
+              db.logout();
+            }
+          }}
           onNavigateProfile={handleNavigateProfile}
         />
 
@@ -362,6 +420,27 @@ export default function App() {
                 onNavigateProfile={handleNavigateProfile}
                 onSelectPrivateChat={handleSelectChatUser}
               />
+            </div>
+          )}
+
+          {/* HTML5 Games Zone */}
+          {activeTab === 'games' && (
+            <div className="max-w-5xl mx-auto">
+              <GamesView />
+            </div>
+          )}
+
+          {/* Live Radio FM Stream */}
+          {activeTab === 'radio' && (
+            <div className="max-w-4xl mx-auto">
+              <LiveRadioView />
+            </div>
+          )}
+
+          {/* Live TV Channels Stream */}
+          {activeTab === 'tv' && (
+            <div className="max-w-5xl mx-auto">
+              <LiveTVView />
             </div>
           )}
 
@@ -457,8 +536,15 @@ export default function App() {
           stories={stories}
           currentUser={currentUser}
           onClose={() => setActiveStory(null)}
-          onDeleteStory={sid => db.deleteStory(sid)}
+          onDeleteStory={sid => {
+            db.deleteStory(sid);
+            setActiveStory(null);
+          }}
           onViewStory={sid => db.viewStory(sid)}
+          onChangeStory={s => {
+            setActiveStory(s);
+            db.viewStory(s.id);
+          }}
         />
       )}
 
@@ -494,36 +580,6 @@ export default function App() {
         }}
       />
 
-      {/* Switch Account Demo Modal */}
-      <SwitchAccountModal
-        isOpen={showSwitchAccount}
-        onClose={() => setShowSwitchAccount(false)}
-        users={users}
-        currentUser={currentUser}
-        onSwitchUser={uid => {
-          db.setCurrentUser(uid);
-          window.location.hash = '';
-          setActiveTab('feed');
-        }}
-        onCreateNewUser={(name, username) => {
-          const newUser: User = {
-            id: `u_${Date.now()}`,
-            username,
-            name,
-            avatar: `https://i.pravatar.cc/160?img=${Math.floor(Math.random() * 70) + 1}`,
-            coverPhoto: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80',
-            bio: 'রং সোশ্যাল নেটওয়ার্কের নতুন সদস্য!',
-            role: 'user',
-            followers: [],
-            following: ['u_admin'],
-            online: true,
-            createdAt: new Date().toISOString()
-          };
-          (db as any).users.push(newUser);
-          db.setCurrentUser(newUser.id);
-        }}
-      />
-
       {/* Settings Modal */}
       <SettingsModal
         isOpen={showSettings}
@@ -548,6 +604,22 @@ export default function App() {
             'রং সোশ্যাল নেটওয়ার্কের পুশ অ্যালার্ট কাজ করছে!'
           );
           sound.playNotification();
+        }}
+      />
+
+      {/* Google Sheets Code (Code.gs & Index.html) Modal */}
+      {showGasModal && (
+        <GoogleSheetCodeModal onClose={() => setShowGasModal(false)} />
+      )}
+
+      {/* Auth Modal: Login & Registration */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode={authDefaultMode}
+        onSuccess={(username) => {
+          setActiveTab('feed');
+          window.location.hash = '';
         }}
       />
     </div>

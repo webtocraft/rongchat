@@ -10,22 +10,31 @@ import {
   Moon, 
   Users, 
   Sparkles,
-  PlusCircle
+  PlusCircle,
+  FileSpreadsheet,
+  LogIn,
+  UserPlus,
+  LogOut,
+  Gamepad2,
+  Radio,
+  Tv
 } from 'lucide-react';
 import { User, AppNotification } from '../types';
 import { toBanglaNumber } from '../utils/format';
 
 interface NavbarProps {
   currentUser: User;
-  activeTab: 'feed' | 'global_chat' | 'inbox' | 'profile' | 'admin' | 'notifications';
-  setActiveTab: (tab: 'feed' | 'global_chat' | 'inbox' | 'profile' | 'admin' | 'notifications') => void;
+  activeTab: 'feed' | 'global_chat' | 'inbox' | 'games' | 'radio' | 'tv' | 'profile' | 'admin' | 'notifications';
+  setActiveTab: (tab: 'feed' | 'global_chat' | 'inbox' | 'games' | 'radio' | 'tv' | 'profile' | 'admin' | 'notifications') => void;
   unreadMessagesCount: number;
   unreadNotificationsCount: number;
   onOpenSearch: () => void;
   onOpenCreatePost: () => void;
   onOpenCreateStory: () => void;
-  onOpenSwitchAccount: () => void;
+  onLogout?: () => void;
   onNavigateProfile: (username: string) => void;
+  onOpenGasModal?: () => void;
+  onOpenAuthModal?: (mode?: 'login' | 'register') => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
 }
@@ -39,10 +48,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSearch,
   onOpenCreatePost,
   onOpenCreateStory,
-  onOpenSwitchAccount,
+  onLogout,
   onNavigateProfile,
   theme,
   onToggleTheme,
+  onOpenGasModal,
+  onOpenAuthModal,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
@@ -104,6 +115,60 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Home className="w-5 h-5" />
             <span className="hidden lg:inline">ফিড</span>
+          </button>
+
+          {/* Games Button */}
+          <button
+            id="nav-games-btn"
+            onClick={() => {
+              setActiveTab('games');
+              window.location.hash = '#games';
+            }}
+            title="গেমস জোন (HTML5)"
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl flex items-center gap-1.5 font-medium text-sm transition-all ${
+              activeTab === 'games'
+                ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 font-semibold'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Gamepad2 className="w-5 h-5 text-purple-500" />
+            <span className="hidden xl:inline">গেমস</span>
+          </button>
+
+          {/* Live Radio Button */}
+          <button
+            id="nav-radio-btn"
+            onClick={() => {
+              setActiveTab('radio');
+              window.location.hash = '#radio';
+            }}
+            title="লাইভ রেডিও (Live Radio)"
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl flex items-center gap-1.5 font-medium text-sm transition-all ${
+              activeTab === 'radio'
+                ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 font-semibold'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Radio className="w-5 h-5 text-rose-500" />
+            <span className="hidden xl:inline">রেডিও</span>
+          </button>
+
+          {/* Live TV Button */}
+          <button
+            id="nav-tv-btn"
+            onClick={() => {
+              setActiveTab('tv');
+              window.location.hash = '#tv';
+            }}
+            title="লাইভ টিভি (Live TV)"
+            className={`p-2 sm:px-3 sm:py-2 rounded-xl flex items-center gap-1.5 font-medium text-sm transition-all ${
+              activeTab === 'tv'
+                ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 font-semibold'
+                : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Tv className="w-5 h-5 text-red-500" />
+            <span className="hidden xl:inline">টিভি</span>
           </button>
 
           {/* Global Chat Tab */}
@@ -200,6 +265,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>পোস্ট</span>
           </button>
 
+          {/* Google Sheets Code modal trigger */}
+          {onOpenGasModal && (
+            <button
+              id="nav-gas-code-btn"
+              onClick={onOpenGasModal}
+              title="গুগল শীট কোড (Code.gs & Index.html)"
+              className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded-xl transition-colors flex items-center gap-1 text-xs font-bold"
+            >
+              <FileSpreadsheet className="w-5 h-5" />
+              <span className="hidden lg:inline">শীট কোড</span>
+            </button>
+          )}
+
           {/* Theme Switcher */}
           <button
             id="nav-theme-toggle"
@@ -210,15 +288,31 @@ export const Navbar: React.FC<NavbarProps> = ({
             {theme === 'dark' ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
           </button>
 
-          {/* Account Switcher Demo Modal Trigger */}
-          <button
-            id="nav-switch-account-btn"
-            onClick={onOpenSwitchAccount}
-            title="আইডি পরিবর্তন / অন্য প্রোফাইলে সুইচ করুন"
-            className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors hidden sm:flex items-center"
-          >
-            <Users className="w-5 h-5 text-indigo-500" />
-          </button>
+          {/* Auth: Login / Register Button */}
+          {onOpenAuthModal && (
+            <button
+              id="nav-auth-modal-trigger"
+              onClick={() => onOpenAuthModal('login')}
+              title="লগইন বা নতুন একাউন্ট রেজিস্টার করুন"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-xs font-bold shadow-sm shadow-indigo-500/20 active:scale-95 transition-all"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">লগইন / রেজিস্টার</span>
+              <span className="sm:hidden">লগইন</span>
+            </button>
+          )}
+
+          {/* Logout Button */}
+          {onLogout && (
+            <button
+              id="nav-logout-btn"
+              onClick={onLogout}
+              title="লগআউট করুন"
+              className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors flex items-center"
+            >
+              <LogOut className="w-5 h-5 text-rose-500" />
+            </button>
+          )}
 
           {/* User Profile avatar pill */}
           <button

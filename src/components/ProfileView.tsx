@@ -17,6 +17,7 @@ import {
 import { User, Post } from '../types';
 import { PostCard } from './PostCard';
 import { toBanglaNumber } from '../utils/format';
+import { db } from '../services/storage';
 
 interface ProfileViewProps {
   user: User;
@@ -224,13 +225,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
-                {toBanglaNumber(user.followers.length)}
+                {toBanglaNumber(db.getFollowersCount(user.id))}
               </span>
               <span className="text-xs text-slate-500">ফলোয়ার</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-slate-900 dark:text-slate-100 text-base">
-                {toBanglaNumber(user.following.length)}
+                {toBanglaNumber(db.getFollowingCount(user.id))}
               </span>
               <span className="text-xs text-slate-500">ফলো করছেন</span>
             </div>

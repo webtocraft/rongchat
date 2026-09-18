@@ -30,17 +30,19 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
   const [mediaUrl, setMediaUrl] = useState('');
   const [selectedGradient, setSelectedGradient] = useState(GRADIENTS[0]);
   const [mode, setMode] = useState<'gradient' | 'photo'>('gradient');
+  const [errorMsg, setErrorMsg] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       try {
+        setErrorMsg('');
         const dataUrl = await readFileAsDataUrl(file);
         setMediaUrl(dataUrl);
         setMode('photo');
-      } catch (err) {
-        alert('ছবি আপলোড করতে সমস্যা হয়েছে!');
+      } catch {
+        setErrorMsg('ছবি আপলোড করতে সমস্যা হয়েছে!');
       }
     }
   };
@@ -48,7 +50,7 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim() && !mediaUrl) {
-      alert('দয়া করে কিছু টেক্সট লিখুন অথবা ছবি দিন!');
+      setErrorMsg('দয়া করে কিছু টেক্সট লিখুন অথবা ছবি দিন!');
       return;
     }
     onSubmit(
@@ -76,6 +78,12 @@ export const CreateStoryModal: React.FC<CreateStoryModalProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {errorMsg && (
+            <div className="p-3 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-semibold">
+              {errorMsg}
+            </div>
+          )}
+
           {/* Mode Switcher */}
           <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <button

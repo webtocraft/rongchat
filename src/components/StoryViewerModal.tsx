@@ -10,6 +10,7 @@ interface StoryViewerModalProps {
   onClose: () => void;
   onDeleteStory: (storyId: string) => void;
   onViewStory: (storyId: string) => void;
+  onChangeStory?: (story: Story) => void;
 }
 
 export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
@@ -18,7 +19,8 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
   currentUser,
   onClose,
   onDeleteStory,
-  onViewStory
+  onViewStory,
+  onChangeStory
 }) => {
   if (!story) return null;
 
@@ -27,9 +29,11 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    onViewStory(story.id);
-    setProgress(0);
-  }, [story.id]);
+    if (story) {
+      onViewStory(story.id);
+      setProgress(0);
+    }
+  }, [story?.id]);
 
   useEffect(() => {
     if (isPaused) return;
@@ -39,31 +43,46 @@ export const StoryViewerModal: React.FC<StoryViewerModalProps> = ({
         if (prev >= 100) {
           // Advance to next story if available
           if (currentIndex < stories.length - 1) {
-            onViewStory(stories[currentIndex + 1].id);
+            const nextStory = stories[currentIndex + 1];
+            if (onChangeStory) {
+              onChangeStory(nextStory);
+            } else {
+              onViewStory(nextStory.id);
+            }
             return 0;
           } else {
             onClose();
             return 100;
           }
         }
-        return prev + 2;
+        return prev + 2.5;
       });
     }, 100);
 
     return () => clearInterval(interval);
-  }, [currentIndex, stories, isPaused, onClose, onViewStory]);
+  }, [currentIndex, stories, isPaused, onClose, onViewStory, onChangeStory]);
 
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentIndex > 0) {
-      onViewStory(stories[currentIndex - 1].id);
+      const prevStory = stories[currentIndex - 1];
+      if (onChangeStory) {
+        onChangeStory(prevStory);
+      } else {
+        onViewStory(prevStory.id);
+      }
     }
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentIndex < stories.length - 1) {
-      onViewStory(stories[currentIndex + 1].id);
+      const nextStory = stories[currentIndex + 1];
+      if (onChangeStory) {
+        onChangeStory(nextStory);
+      } else {
+        onViewStory(nextStory.id);
+      }
     } else {
       onClose();
     }

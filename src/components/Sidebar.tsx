@@ -12,10 +12,14 @@ import {
   Search,
   LogOut,
   Bookmark,
-  Share2
+  Share2,
+  Gamepad2,
+  Radio,
+  Tv
 } from 'lucide-react';
 import { User } from '../types';
 import { toBanglaNumber } from '../utils/format';
+import { db } from '../services/storage';
 
 interface SidebarProps {
   currentUser: User;
@@ -25,7 +29,7 @@ interface SidebarProps {
   unreadNotificationsCount: number;
   onOpenSearch: () => void;
   onOpenSettings: () => void;
-  onOpenSwitchAccount: () => void;
+  onLogout?: () => void;
   onNavigateProfile: (username: string) => void;
 }
 
@@ -37,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   unreadNotificationsCount,
   onOpenSearch,
   onOpenSettings,
-  onOpenSwitchAccount,
+  onLogout,
   onNavigateProfile
 }) => {
   return (
@@ -77,13 +81,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2">
             <span className="block font-bold text-sm text-slate-800 dark:text-slate-200">
-              {toBanglaNumber(currentUser.followers.length)}
+              {toBanglaNumber(db.getFollowersCount(currentUser.id))}
             </span>
             <span className="text-[11px] text-slate-500 font-medium">ফলোয়ার</span>
           </div>
           <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2">
             <span className="block font-bold text-sm text-slate-800 dark:text-slate-200">
-              {toBanglaNumber(currentUser.following.length)}
+              {toBanglaNumber(db.getFollowingCount(currentUser.id))}
             </span>
             <span className="text-[11px] text-slate-500 font-medium">ফলো করছেন</span>
           </div>
@@ -106,6 +110,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <Home className="w-5 h-5 text-indigo-500" />
           <span>হোম ফিড</span>
+        </button>
+
+        <button
+          id="sidebar-games-btn"
+          onClick={() => {
+            setActiveTab('games');
+            window.location.hash = '#games';
+          }}
+          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            activeTab === 'games'
+              ? 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400'
+              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <Gamepad2 className="w-5 h-5 text-purple-500" />
+          <span>গেমস জোন (HTML5)</span>
+        </button>
+
+        <button
+          id="sidebar-radio-btn"
+          onClick={() => {
+            setActiveTab('radio');
+            window.location.hash = '#radio';
+          }}
+          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            activeTab === 'radio'
+              ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400'
+              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <Radio className="w-5 h-5 text-rose-500" />
+          <span>লাইভ রেডিও (Live FM)</span>
+        </button>
+
+        <button
+          id="sidebar-tv-btn"
+          onClick={() => {
+            setActiveTab('tv');
+            window.location.hash = '#tv';
+          }}
+          className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+            activeTab === 'tv'
+              ? 'bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400'
+              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <Tv className="w-5 h-5 text-red-500" />
+          <span>লাইভ টিভি (Live TV)</span>
         </button>
 
         <button
@@ -216,14 +268,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
 
-        <button
-          id="sidebar-switch-btn"
-          onClick={onOpenSwitchAccount}
-          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
-        >
-          <Users className="w-5 h-5 text-purple-500" />
-          <span>ইউজার পরিবর্তন (ডেমো টেস্ট)</span>
-        </button>
+        {onLogout && (
+          <button
+            id="sidebar-logout-btn"
+            onClick={onLogout}
+            className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-all"
+          >
+            <LogOut className="w-5 h-5 text-rose-500" />
+            <span>লগআউট (Logout)</span>
+          </button>
+        )}
 
         <button
           id="sidebar-settings-btn"

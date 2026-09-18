@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { Post, User } from '../types';
 import { formatTimeAgo, toBanglaNumber, readFileAsDataUrl } from '../utils/format';
+import { db } from '../services/storage';
+import { ReactionsModal } from './ReactionsModal';
 
 interface PostCardProps {
   post: Post;
@@ -50,6 +52,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [showOptions, setShowOptions] = useState(false);
   const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showReactionsModal, setShowReactionsModal] = useState(false);
   const [shareCaption, setShareCaption] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -347,7 +350,12 @@ export const PostCard: React.FC<PostCardProps> = ({
       <div className="px-4 py-2 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80">
         <div className="flex items-center gap-1.5">
           {activeEmojis.length > 0 ? (
-            <div className="flex items-center gap-1">
+            <button 
+              type="button"
+              onClick={() => setShowReactionsModal(true)}
+              className="flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer group focus:outline-none"
+              title="কে কে রিঅ্যাক্ট করেছেন দেখুন"
+            >
               <div className="flex -space-x-1">
                 {activeEmojis.slice(0, 3).map(item => (
                   <span key={item.emoji} className="text-sm bg-white dark:bg-slate-800 rounded-full shadow-xs px-0.5">
@@ -355,10 +363,10 @@ export const PostCard: React.FC<PostCardProps> = ({
                   </span>
                 ))}
               </div>
-              <span className="font-semibold text-slate-700 dark:text-slate-300 ml-1">
+              <span className="font-semibold text-slate-700 dark:text-slate-300 ml-1 group-hover:underline group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
                 {toBanglaNumber(totalReactions)}
               </span>
-            </div>
+            </button>
           ) : (
             <span>প্রথম রিঅ্যাক্ট দিন</span>
           )}
@@ -559,6 +567,18 @@ export const PostCard: React.FC<PostCardProps> = ({
             </div>
           </div>
         </div>
+      )}
+      {/* Reactions Details Modal */}
+      {showReactionsModal && (
+        <ReactionsModal
+          isOpen={showReactionsModal}
+          onClose={() => setShowReactionsModal(false)}
+          reactions={post.reactions || {}}
+          users={db.getUsers()}
+          currentUser={currentUser}
+          onToggleFollow={uid => db.toggleFollow(uid)}
+          onNavigateProfile={onNavigateProfile}
+        />
       )}
     </article>
   );
