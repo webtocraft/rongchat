@@ -93,7 +93,7 @@
         </div>
         <div>
           <span class="font-black text-lg sm:text-xl tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">রং সোশ্যাল</span>
-          <span class="text-[9px] block font-semibold text-slate-400 -mt-1 tracking-wider uppercase">Google Sheets 2.0</span>
+          <span class="text-[9px] block font-semibold text-slate-400 -mt-1 tracking-wider uppercase">Rong Social Network</span>
         </div>
       </a>
 
@@ -113,7 +113,7 @@
         </button>
         <button onclick="switchTab('inbox')" id="btn-tab-inbox" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white relative">
           <i data-lucide="mail" class="w-4 h-4 text-blue-500"></i><span>ইনবক্স</span>
-          <span id="badge-unread-inbox" class="hidden w-2 h-2 rounded-full bg-pink-500 absolute top-1 right-1"></span>
+          <span id="badge-unread-inbox" class="hidden min-w-4 h-4 px-1 rounded-full bg-pink-500 text-white text-[9px] leading-4 text-center absolute -top-1 -right-1"></span>
         </button>
       </nav>
 
@@ -144,6 +144,26 @@
           <i id="theme-btn-icon" data-lucide="moon" class="w-4 h-4"></i>
         </button>
 
+        <!-- Notifications -->
+        <div class="relative">
+          <button onclick="toggleNotifications()" title="নোটিফিকেশন" class="relative p-2 rounded-xl text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span id="badge-unread-notifications" class="hidden min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] leading-4 text-center absolute -top-1 -right-1"></span>
+          </button>
+          <div id="notifications-panel" class="hidden absolute right-0 top-11 w-[min(22rem,calc(100vw-1rem))] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden z-50">
+            <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div>
+                <h3 class="text-sm font-bold">নোটিফিকেশন</h3>
+                <p class="text-[10px] text-slate-400">রিঅ্যাক্ট, কমেন্ট ও মেসেজ</p>
+              </div>
+              <button onclick="markAllNotificationsRead()" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline">সব পড়া হয়েছে</button>
+            </div>
+            <div id="notifications-list" class="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
+              <div class="p-6 text-center text-xs text-slate-400">কোনো নোটিফিকেশন নেই</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Settings Modal trigger -->
         <button onclick="openSettingsModal()" title="সেটিংস" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
           <i data-lucide="settings" class="w-4 h-4"></i>
@@ -171,8 +191,9 @@
     <button onclick="switchTab('market')" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-amber-600">
       <i data-lucide="shopping-bag" class="w-4 h-4"></i><span>বাজার</span>
     </button>
-    <button onclick="switchTab('inbox')" class="flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-blue-600">
+    <button onclick="switchTab('inbox')" class="relative flex flex-col items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-blue-600">
       <i data-lucide="mail" class="w-4 h-4"></i><span>ইনবক্স</span>
+      <span id="badge-unread-inbox-mobile" class="hidden min-w-4 h-4 px-1 rounded-full bg-pink-500 text-white text-[9px] leading-4 text-center absolute -top-1 left-1/2"></span>
     </button>
     <div id="mobile-auth-btn-block">
       <!-- Dynamically filled with Profile or Login button by JS -->
@@ -277,7 +298,7 @@
               <span>EMQX সক্রিয়</span>
             </span>
           </div>
-          <div class="text-[10px] text-slate-400">Google Apps Script + MQTT</div>
+          <div class="text-[10px] text-slate-400">Rong Social Network</div>
         </div>
       </aside>
 
@@ -397,7 +418,7 @@
             <i data-lucide="plus" class="w-5 h-5"></i>
           </div>
           <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">স্টোরি দিন</span>
-          <input type="file" id="story-file-input" accept="image/*" class="hidden" onchange="handleStoryFile(this)">
+           <input type="file" id="story-file-input" accept="image/*,video/*" class="hidden" onchange="handleStoryFile(this)">
         </div>
 
         <div id="stories-list" class="flex items-center gap-3">
@@ -683,8 +704,8 @@
                   <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
                 </span>
               </div>
-              <h3 id="radio-station-title" class="text-base font-bold text-slate-900 dark:text-slate-100">রেডিও ফুর্তি (Radio Foorti)</h3>
-              <p id="radio-station-desc" class="text-xs text-slate-500 dark:text-slate-400">ঢাকার সর্বোচ্চ জনপ্রিয় এফএম রেডিও স্টেশন • নন-স্টপ মিউজিক</p>
+              <h3 id="radio-station-title" class="text-base font-bold text-slate-900 dark:text-slate-100">Google Sheet থেকে স্টেশন নির্বাচন করুন</h3>
+              <p id="radio-station-desc" class="text-xs text-slate-500 dark:text-slate-400">RadioStations শীটের সক্রিয় স্টেশনগুলো এখানে দেখাবে</p>
             </div>
           </div>
 
@@ -757,18 +778,18 @@
               <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
               <span>LIVE</span>
             </span>
-            <h3 id="tv-active-channel-name" class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">সময় টিভি লাইভ (Somoy TV 24/7)</h3>
+            <h3 id="tv-active-channel-name" class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100">Live TV চ্যানেল নির্বাচন করুন</h3>
           </div>
           <div class="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
             <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-            <span id="tv-viewer-count">২৪,৫০০+ দর্শক দেখছেন</span>
+            <span id="tv-viewer-count">TVChannels</span>
           </div>
         </div>
 
         <!-- 16:9 Video Frame -->
         <div class="relative w-full aspect-video bg-black flex items-center justify-center">
           <iframe id="tv-stream-frame" 
-                  src="https://www.youtube.com/embed/live_stream?channel=UC82Xo3F31Xn77qJ_O-F-Ypg" 
+                  src="about:blank" 
                   class="w-full h-full border-0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                   allowfullscreen>
@@ -1060,33 +1081,7 @@
           <span>লগইন করুন</span>
         </button>
 
-        <!-- Quick 1-Click Demo Logins -->
-        <div id="quick-demo-logins-section" class="pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
-          <div class="text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center justify-between">
-            <span class="flex items-center gap-1 text-indigo-600 dark:text-indigo-400">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-500"></i>
-              <span>এক-ক্লিকে ইনস্ট্যান্ট ডেমো লগইন:</span>
-            </span>
-            <span class="text-[10px] text-slate-400 font-normal">ক্লিক করলেই লগইন!</span>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px]">
-            <button type="button" onclick="quickDemoLogin('tanvir')" class="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 font-bold flex items-center gap-1 justify-center transition-all border border-indigo-200/50">
-              <span>👑 তানভীর</span>
-            </button>
-            <button type="button" onclick="quickDemoLogin('sumaiya')" class="p-2 rounded-xl bg-pink-50 dark:bg-pink-950/60 hover:bg-pink-100 text-pink-700 dark:text-pink-300 font-bold flex items-center gap-1 justify-center transition-all border border-pink-200/50">
-              <span>🌸 সুমাইয়া</span>
-            </button>
-            <button type="button" onclick="quickDemoLogin('rafiq')" class="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-bold flex items-center gap-1 justify-center transition-all border border-emerald-200/50">
-              <span>💻 রফিকুল</span>
-            </button>
-            <button type="button" onclick="quickDemoLogin('farhana')" class="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 text-amber-700 dark:text-amber-300 font-bold flex items-center gap-1 justify-center transition-all border border-amber-200/50">
-              <span>🎨 ফারহানা</span>
-            </button>
-            <button type="button" onclick="quickDemoLogin('admin')" class="col-span-2 sm:col-span-2 p-2 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 text-purple-700 dark:text-purple-300 font-bold flex items-center gap-1 justify-center transition-all border border-purple-200/50">
-              <span>⚡ এডমিন (ফুল অ্যাক্সেস)</span>
-            </button>
-          </div>
-        </div>
+        <div id="auth-error" class="hidden rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-center text-xs font-semibold text-rose-600 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300" role="alert"></div>
       </form>
 
       <div class="pt-2 text-center text-xs text-slate-400 border-t border-slate-100 dark:border-slate-800">
@@ -1330,31 +1325,7 @@
           <button onclick="toggleTheme()" class="px-3 py-1 bg-slate-200 dark:bg-slate-700 rounded-lg text-xs font-semibold">টগল</button>
         </div>
 
-        <!-- Blogger & Apps Script Integration Bridge Settings -->
-        <div class="p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900 space-y-2">
-          <div class="flex items-center justify-between">
-            <div class="font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
-              <i data-lucide="link-2" class="w-3.5 h-3.5"></i>
-              <span>ব্লগার ও Apps Script সংযোগ</span>
-            </div>
-            <span id="gas-bridge-status-pill" class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300">লোকাল/স্ট্যান্ডঅ্যালোন</span>
-          </div>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">
-            ব্লগারে এই ফাইলটি চালানোর জন্য নিচে আপনার গুগল অ্যাপস স্ক্রিপ্ট ওয়েব অ্যাপ URL (exec) বসান:
-          </p>
-          <div class="flex gap-1.5">
-            <input type="url" id="gas-endpoint-input" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-[11px] outline-none focus:ring-1 focus:ring-indigo-500 font-mono">
-            <button onclick="saveGasEndpointUrl()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition-colors shrink-0">সেভ</button>
-          </div>
-          <div class="flex items-center justify-between pt-1">
-            <button onclick="testGasConnection()" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline flex items-center gap-1">
-              <i data-lucide="activity" class="w-3 h-3"></i> সংযোগ টেস্ট করুন
-            </button>
-            <button onclick="copyBloggerEmbedCode()" class="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold hover:underline flex items-center gap-1">
-              <i data-lucide="code-2" class="w-3 h-3"></i> ব্লগারে ব্যবহারের কোড
-            </button>
-          </div>
-        </div>
+        
 
         <button onclick="exportDataAsJson()" class="w-full p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 font-semibold hover:bg-slate-200 text-slate-800 dark:text-slate-200 flex items-center justify-center gap-2">
           <i data-lucide="download" class="w-4 h-4"></i>
@@ -1401,6 +1372,8 @@
       <!-- Story Content Area -->
       <div id="story-viewer-body" class="w-full h-full flex items-center justify-center relative p-6 select-none cursor-pointer">
         <img id="story-viewer-img" src="" class="w-full h-full object-contain hidden select-none">
+        <video id="story-viewer-video" class="w-full h-full object-contain hidden select-none" playsinline></video>
+        <audio id="story-viewer-audio" preload="none"></audio>
         <div id="story-viewer-caption" class="absolute inset-x-4 bottom-14 z-20 text-center text-white text-sm font-semibold drop-shadow-md bg-black/40 backdrop-blur-sm p-3 rounded-2xl hidden"></div>
         <div id="story-viewer-text-slide" class="text-center text-white text-lg font-bold drop-shadow-md px-6 leading-relaxed hidden"></div>
       </div>
@@ -1540,9 +1513,16 @@
       events: [],
       messages: [],
       directMessages: [],
+      notifications: [],
+      unreadNotifications: 0,
+      unreadDirectMessages: 0,
+      radio: [],
+      tv: [],
       activePeerUsername: null,
       marketCategory: 'all',
-      theme: 'light'
+      theme: 'light',
+      feedLimit: 10,
+      remoteDataLoaded: false
     };
 
     // MQTT Realtime Broker Integration
@@ -1560,7 +1540,8 @@
 
     // Blogger / Apps Script Universal Integration
     const isGAS = typeof google !== 'undefined' && google.script && google.script.run;
-    let gasEndpointUrl = localStorage.getItem('rsn_gas_endpoint') || '';
+    const DEFAULT_GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxsOwkNjFLJbey4CqmHmUmA6Fzg_rWNlweRQJBD-T7y_OMaj1_k9SrWelefyfsDMWYc/exec';
+    let gasEndpointUrl = localStorage.getItem('rsn_gas_endpoint') || DEFAULT_GAS_ENDPOINT;
 
     // If running in Blogger or standalone with URL parameter ?gas=...
     try {
@@ -1591,9 +1572,13 @@
         if (action === 'deletePost') return runner.deletePost(payload.postId, payload.username);
         if (action === 'addComment') return runner.addComment(payload.comment || payload);
         if (action === 'addReel') return runner.addReel(payload.reel || payload);
+        if (action === 'toggleReelLike') return runner.toggleReelLike(payload.reelId, payload.username);
         if (action === 'reactToReel') return runner.reactToReel(payload.reelId, payload.username, payload.emoji);
+        if (action === 'addReelComment') return runner.addReelComment(payload.comment || payload);
         if (action === 'addStory') return runner.addStory(payload.story || payload);
         if (action === 'viewStory') return runner.viewStory(payload.storyId, payload.username);
+        if (action === 'reactToStory') return runner.reactToStory(payload.storyId, payload.username, payload.emoji);
+        if (action === 'addStoryReply') return runner.addStoryReply(payload.reply || payload);
         if (action === 'deleteStory') return runner.deleteStory(payload.storyId);
         if (action === 'addMarketItem') return runner.addMarketItem(payload.item || payload);
         if (action === 'addEvent') return runner.addEvent(payload.event || payload);
@@ -1601,6 +1586,8 @@
         if (action === 'toggleFollow') return runner.toggleFollowUser(payload.followerUsername, payload.targetUsername);
         if (action === 'updateProfile') return runner.updateFullProfile(payload.userData || payload);
         if (action === 'sendDirectMessage') return runner.sendDirectMessage(payload.message || payload);
+        if (action === 'markDirectMessagesRead') return runner.markDirectMessagesRead(payload.username, payload.peerUsername || '');
+        if (action === 'markNotificationsRead') return runner.markNotificationsRead(payload.username, payload.notificationIds || []);
         if (action === 'sendGlobalMessage') return runner.sendGlobalMessage(payload.message || payload);
         return;
       }
@@ -1707,8 +1694,7 @@
       const user = demoProfiles[username] || demoProfiles['tanvir'];
       user.following = user.following || ['admin', 'sumaiya'];
       user.followers = user.followers || ['sumaiya', 'rafiq', 'farhana'];
-      state.currentUser = user;
-      localStorage.setItem('rsn_user_v2', JSON.stringify(user));
+      state.currentUser = persistUserSession(user);
       updateUserHeader();
       closeModal('modal-auth');
       renderFeed();
@@ -1718,8 +1704,7 @@
 
       callBackend('login', { username: username, password: '123456' }, (res) => {
         if (res && res.success && res.user) {
-          state.currentUser = res.user;
-          localStorage.setItem('rsn_user_v2', JSON.stringify(res.user));
+          state.currentUser = persistUserSession(res.user);
           updateUserHeader();
         }
       });
@@ -1734,7 +1719,7 @@
       // 2. User Session
       const savedUser = localStorage.getItem('rsn_user_v2');
       if (savedUser) {
-        try { state.currentUser = JSON.parse(savedUser); } catch(e){}
+        try { state.currentUser = restoreUserSession(JSON.parse(savedUser)); } catch(e){}
       }
 
       if (!state.currentUser) {
@@ -1861,15 +1846,130 @@
       lucide.createIcons();
     }
 
-    function handleHash() {
-      const hash = window.location.hash || '#feed';
-      if (hash.startsWith('#/')) {
-        const handle = hash.replace('#/', '').trim();
-        switchTab('profile');
-        showProfile(handle);
-      } else if (['#feed', '#reels', '#market', '#events', '#inbox', '#chat'].includes(hash)) {
-        switchTab(hash.replace('#', ''));
+    function getUnreadDirectMessageCountLocal() {
+      if (!state.currentUser) return 0;
+      const username = state.currentUser.username.toLowerCase();
+      return (state.directMessages || []).filter(m =>
+        (m.recipientUsername || '').toLowerCase() === username && !m.read
+      ).length;
+    }
+
+    function updateUnreadBadges() {
+      state.unreadDirectMessages = getUnreadDirectMessageCountLocal();
+      const messageCount = state.unreadDirectMessages;
+      ['badge-unread-inbox', 'badge-unread-inbox-mobile'].forEach(id => {
+        const badge = document.getElementById(id);
+        if (!badge) return;
+        badge.textContent = messageCount > 99 ? '৯৯+' : toBangla(messageCount);
+        badge.classList.toggle('hidden', messageCount === 0);
+      });
+
+      const notificationCount = Number(state.unreadNotifications || 0);
+      const notificationBadge = document.getElementById('badge-unread-notifications');
+      if (notificationBadge) {
+        notificationBadge.textContent = notificationCount > 99 ? '৯৯+' : toBangla(notificationCount);
+        notificationBadge.classList.toggle('hidden', notificationCount === 0);
       }
+    }
+
+    function notificationIcon(type) {
+      if (type === 'direct_message') return 'mail';
+      if (type === 'post_comment' || type === 'story_reply') return 'message-circle';
+      return 'heart';
+    }
+
+    function toggleNotifications() {
+      if (!state.currentUser) {
+        openAuthModal('login');
+        return;
+      }
+      const panel = document.getElementById('notifications-panel');
+      if (!panel) return;
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) renderNotifications();
+    }
+
+    function renderNotifications() {
+      const list = document.getElementById('notifications-list');
+      if (!list) return;
+      const items = state.notifications || [];
+      if (!items.length) {
+        list.innerHTML = '<div class="p-6 text-center text-xs text-slate-400">নতুন কোনো নোটিফিকেশন নেই</div>';
+        updateUnreadBadges();
+        return;
+      }
+
+      list.innerHTML = items.map(n => {
+        const actor = state.users.find(u => u.username === n.actorUsername);
+        const avatar = n.actorAvatar || actor?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80';
+        const actorName = n.actorName || actor?.name || ('@' + n.actorUsername);
+        const time = n.createdAt ? new Date(n.createdAt).toLocaleString('bn-BD', {
+          day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        }) : '';
+        return `
+          <button onclick="openNotification('${escapeHtml(n.id)}')" class="w-full text-left flex gap-2.5 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors ${n.read ? '' : 'bg-indigo-50/70 dark:bg-indigo-950/30'}">
+            <img src="${avatar}" class="w-8 h-8 rounded-full object-cover shrink-0">
+            <span class="flex-1 min-w-0">
+              <span class="flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
+                <i data-lucide="${notificationIcon(n.type)}" class="w-3.5 h-3.5 ${n.type === 'direct_message' ? 'text-blue-500' : 'text-pink-500'} shrink-0"></i>
+                <span class="text-xs font-bold truncate">${escapeHtml(actorName)}</span>
+                ${n.read ? '' : '<span class="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>'}
+              </span>
+              <span class="block text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">${escapeHtml(n.text || 'নতুন অ্যাক্টিভিটি হয়েছে।')}</span>
+              <span class="block text-[9px] text-slate-400 mt-1">${time}</span>
+            </span>
+          </button>
+        `;
+      }).join('');
+      lucide.createIcons();
+      updateUnreadBadges();
+    }
+
+    function openNotification(notificationId) {
+      const item = (state.notifications || []).find(n => n.id === notificationId);
+      if (!item) return;
+      if (!item.read) {
+        item.read = true;
+        state.unreadNotifications = Math.max(0, Number(state.unreadNotifications || 0) - 1);
+        callBackend('markNotificationsRead', {
+          username: state.currentUser.username,
+          notificationIds: [notificationId]
+        });
+      }
+      document.getElementById('notifications-panel')?.classList.add('hidden');
+      updateUnreadBadges();
+      if (item.type === 'direct_message') {
+        switchTab('inbox');
+        selectInboxPeer(item.actorUsername);
+      } else {
+        switchTab('feed');
+      }
+    }
+
+    function markAllNotificationsRead() {
+      if (!state.currentUser || !state.notifications?.length) return;
+      state.notifications.forEach(n => { n.read = true; });
+      state.unreadNotifications = 0;
+      renderNotifications();
+      callBackend('markNotificationsRead', { username: state.currentUser.username });
+    }
+
+    function handleHash() {
+      const hash = decodeURIComponent(window.location.hash || '#feed').trim();
+      const tabHashes = ['#feed', '#friends', '#reels', '#market', '#events', '#games', '#radio', '#tv', '#inbox', '#chat', '#search'];
+      if (tabHashes.includes(hash.toLowerCase())) {
+        switchTab(hash.slice(1).toLowerCase(), false);
+        return;
+      }
+      if (hash && hash !== '#profile') {
+        const handle = hash.replace(/^#\/?/, '').trim().toLowerCase();
+        if (handle) {
+          switchTab('profile', false);
+          showProfile(handle, false);
+          return;
+        }
+      }
+      switchTab('feed', false);
     }
 
     
@@ -1990,66 +2090,22 @@
     // ==============================================
     // LIVE RADIO STREAM ENGINE
     // ==============================================
-    const RADIO_STATIONS = [
-      {
-        id: 'foorti',
-        name: 'রেডিও ফুর্তি (Radio Foorti)',
-        desc: 'ঢাকার সর্বোচ্চ জনপ্রিয় এফএম রেডিও স্টেশন • নন-স্টপ মিউজিক',
-        freq: '88.0 FM',
-        url: 'https://stream.zeno.fm/4gq3h02a8p8uv',
-        logo: '📻'
-      },
-      {
-        id: 'dhakafm',
-        name: 'ঢাকা এফএম (Dhaka FM)',
-        desc: '২৪ ঘণ্টা গান, সংবাদ ও বিনোদনমূলক লাইভ টক-শো',
-        freq: '90.4 FM',
-        url: 'https://stream.zeno.fm/9qszq7dhy08uv',
-        logo: '🎧'
-      },
-      {
-        id: 'today',
-        name: 'রেডিও টুডে (Radio Today)',
-        desc: 'লাইভ সংবাদ বুলেটিন, ট্রাফিক আপডেট ও ক্লাসিক গান',
-        freq: '89.6 FM',
-        url: 'https://stream.zeno.fm/7x4802g2738uv',
-        logo: '🎙️'
-      },
-      {
-        id: 'quran',
-        name: 'কুরআন বাংলা রেডিও (Quran Bangla)',
-        desc: 'পবিত্র কুরআন তিলাওয়াত ও বিশুদ্ধ বাংলা ভাবানুবাদ',
-        freq: 'অনলাইন লাইভ',
-        url: 'https://stream.zeno.fm/k2d4hyqby08uv',
-        logo: '📖'
-      },
-      {
-        id: 'jago',
-        name: 'জাগো এফএম (Jago FM)',
-        desc: 'তরুণ প্রজন্মের প্রিয় রেডিও মিউজিক ও লাইভ আড্ডা',
-        freq: '94.4 FM',
-        url: 'https://stream.zeno.fm/u1655h2ky08uv',
-        logo: '⚡'
-      },
-      {
-        id: 'melodies',
-        name: 'চিরসবুজ বাংলা ক্লাসিক হিটস',
-        desc: 'চিরসবুজ সোনালী দিনের বাংলা গানের সুরের ধারা',
-        freq: 'ক্লাসিক লাইভ',
-        url: 'https://stream.zeno.fm/k808dzy31v8uv',
-        logo: '🎶'
-      }
-    ];
-
-    let currentRadioStation = RADIO_STATIONS[0];
+    // Radio catalog is loaded only from the RadioStations Google Sheet.
+    const RADIO_STATIONS = [];
+    let currentRadioStation = null;
     let isRadioPlaying = false;
 
     function renderRadio() {
       const list = document.getElementById('radio-stations-list');
       if (!list) return;
+      const stations = Array.isArray(state.radio) ? state.radio : [];
+      if (!stations.length) {
+        list.innerHTML = '<div class="sm:col-span-2 lg:col-span-3 p-6 text-center text-xs text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">RadioStations শীটে কোনো সক্রিয় স্টেশন নেই।</div>';
+        return;
+      }
 
-      list.innerHTML = RADIO_STATIONS.map(s => {
-        const isCurrent = currentRadioStation.id === s.id;
+      list.innerHTML = stations.map(s => {
+        const isCurrent = currentRadioStation && currentRadioStation.id === s.id;
         return `
           <div onclick="selectRadioStation('${s.id}')" class="p-3.5 rounded-2xl border ${isCurrent ? 'border-rose-500 bg-rose-50/60 dark:bg-rose-950/30 ring-1 ring-rose-500/30' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'} hover:border-rose-400 cursor-pointer transition-all flex items-center justify-between shadow-xs hover:shadow-sm">
             <div class="flex items-center gap-3 overflow-hidden">
@@ -2081,7 +2137,7 @@
     }
 
     function selectRadioStation(id) {
-      const station = RADIO_STATIONS.find(s => s.id === id);
+      const station = (state.radio || []).find(s => s.id === id);
       if (!station) return;
       currentRadioStation = station;
 
@@ -2116,6 +2172,10 @@
         updateRadioUI(false);
         toast('রেডিও পজ করা হয়েছে');
       } else {
+        if (!currentRadioStation) {
+          toast('Google Sheet-এ কোনো রেডিও স্টেশন নেই');
+          return;
+        }
         if (!audio.src || audio.src !== currentRadioStation.url) {
           audio.src = currentRadioStation.url;
         }
@@ -2150,59 +2210,21 @@
     // ==============================================
     // LIVE TV STREAM ENGINE
     // ==============================================
-    const TV_CHANNELS = [
-      {
-        id: 'somoy',
-        name: 'সময় টিভি লাইভ (Somoy TV 24/7)',
-        logo: '📺',
-        viewers: '২৫,৪০০+ দর্শক',
-        stream: 'https://www.youtube.com/embed/live_stream?channel=UC82Xo3F31Xn77qJ_O-F-Ypg'
-      },
-      {
-        id: 'jamuna',
-        name: 'যমুনা টিভি লাইভ (Jamuna TV)',
-        logo: '⚡',
-        viewers: '১৮,২০০+ দর্শক',
-        stream: 'https://www.youtube.com/embed/live_stream?channel=UCm8B_cI-rU5uA5n4r_dZc3Q'
-      },
-      {
-        id: 'ekattor',
-        name: 'একাত্তর টিভি (Ekattor TV 71)',
-        logo: '🔴',
-        viewers: '১৪,১০০+ দর্শক',
-        stream: 'https://www.youtube.com/embed/live_stream?channel=UC7N1nBfK9Qp6T0a1wH2bJTw'
-      },
-      {
-        id: 'independent',
-        name: 'ইন্ডিপেন্ডেন্ট টিভি (Independent TV)',
-        logo: '🎙️',
-        viewers: '১১,৫০০+ দর্শক',
-        stream: 'https://www.youtube.com/embed/live_stream?channel=UC1C6y1s1qWd9v2L5oPq3Nig'
-      },
-      {
-        id: 'channel24',
-        name: 'চ্যানেল ২৪ লাইভ (Channel 24)',
-        logo: '🎥',
-        viewers: '৯,৮০০+ দর্শক',
-        stream: 'https://www.youtube.com/embed/live_stream?channel=UCF83015_bZ97fGk5K_eQz8g'
-      },
-      {
-        id: 'dbc',
-        name: 'ডিবিসি নিউজ (DBC News Live)',
-        logo: '📰',
-        viewers: '৮,৬০০+ দর্শক',
-        stream: 'https://www.youtube.com/embed/live_stream?channel=UCk1rN4y9B4Xk9b9v3tqfX7A'
-      }
-    ];
-
-    let currentTVChannel = TV_CHANNELS[0];
+    // TV catalog is loaded only from the TVChannels Google Sheet.
+    const TV_CHANNELS = [];
+    let currentTVChannel = null;
 
     function renderTV() {
       const grid = document.getElementById('tv-channels-grid');
       if (!grid) return;
+      const channels = Array.isArray(state.tv) ? state.tv : [];
+      if (!channels.length) {
+        grid.innerHTML = '<div class="col-span-full p-6 text-center text-xs text-slate-400 bg-white dark:bg-slate-900 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">TVChannels শীটে কোনো সক্রিয় চ্যানেল নেই।</div>';
+        return;
+      }
 
-      grid.innerHTML = TV_CHANNELS.map(ch => {
-        const isCurrent = currentTVChannel.id === ch.id;
+      grid.innerHTML = channels.map(ch => {
+        const isCurrent = currentTVChannel && currentTVChannel.id === ch.id;
         return `
           <div onclick="switchTVChannel('${ch.id}')" class="p-3 bg-white dark:bg-slate-900 rounded-2xl border ${
             isCurrent ? 'border-red-500 ring-2 ring-red-500/20 bg-red-50/30 dark:bg-red-950/20' : 'border-slate-200 dark:border-slate-800'
@@ -2221,7 +2243,7 @@
     }
 
     function switchTVChannel(id) {
-      const ch = TV_CHANNELS.find(c => c.id === id);
+      const ch = (state.tv || []).find(c => c.id === id);
       if (!ch) return;
       currentTVChannel = ch;
 
@@ -2250,9 +2272,11 @@
     // ==============================================
     // EXTENDED NAVIGATION & TAB SWITCHING
     // ==============================================
-    function switchTab(tab) {
+    function switchTab(tab, updateHash = true) {
       state.activeTab = tab;
-      window.location.hash = '#' + tab;
+      if (updateHash && window.location.hash !== '#' + tab) {
+        window.location.hash = '#' + tab;
+      }
 
       const tabs = ['feed', 'friends', 'reels', 'market', 'events', 'games', 'radio', 'tv', 'inbox', 'chat', 'profile', 'search'];
       tabs.forEach(t => {
@@ -2651,7 +2675,15 @@
         callBackend('getInitialData', { username: state.currentUser?.username || '' }, (res) => {
           if (spin) spin.classList.remove('animate-spin');
           if (res && res.success) {
-            state.users = res.users || state.users || [];
+            // Google Sheets is authoritative: never keep a deleted user from
+            // localStorage or re-add one received from the MQTT broker.
+            state.users = Array.isArray(res.users) ? res.users : [];
+            if (state.currentUser && !state.users.some(u => u.username === state.currentUser.username)) {
+              state.currentUser = null;
+              localStorage.removeItem('rsn_user_v2');
+              updateUserHeader();
+              toast('আপনার ইউজারটি Google Sheet-এ নেই।');
+            }
             state.posts = res.posts || state.posts || [];
             state.comments = res.comments || state.comments || [];
             state.reels = res.reels || state.reels || [];
@@ -2660,11 +2692,21 @@
             state.messages = res.messages || state.messages || [];
             state.directMessages = res.directMessages || state.directMessages || [];
             state.stories = res.stories || state.stories || [];
+            state.notifications = Array.isArray(res.notifications) ? res.notifications : [];
+            state.unreadNotifications = Number(res.unreadNotifications || 0);
+            state.unreadDirectMessages = Number(res.unreadDirectMessages || 0);
+            state.radio = Array.isArray(res.radio) ? res.radio : [];
+            state.tv = Array.isArray(res.tv) ? res.tv : [];
+            currentRadioStation = state.radio[0] || null;
+            currentTVChannel = state.tv[0] || null;
+            state.remoteDataLoaded = true;
 
             saveLocalCache();
             renderCurrentTab();
             renderStories();
             renderOnlineUsersSidebar();
+            renderNotifications();
+            updateUnreadBadges();
             if (showNotify) toast('শীট ডেটা আপডেট সম্পন্ন! ✓');
           }
         }, (err) => {
@@ -2688,7 +2730,7 @@
       if (savedUsers) {
         try { state.users = JSON.parse(savedUsers); } catch(e){}
       }
-      if (!state.users || state.users.length === 0) {
+      if ((!state.users || state.users.length === 0) && !gasEndpointUrl) {
         state.users = [
           { id: 'u_admin', username: 'admin', name: 'তানভীর আহমেদ (Admin)', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', bio: 'রং সোশ্যাল নেটওয়ার্ক অ্যাডমিন', verified: true, role: 'admin', followers: ['sumaiya', 'rafiq'], following: ['sumaiya'] },
           { id: 'u_sumaiya', username: 'sumaiya', name: 'সুমাইয়া জাহান', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', bio: 'ডিজিটাল কনটেন্ট ক্রিয়েটর', verified: true, role: 'user', followers: ['admin'], following: ['admin', 'rafiq'] },
@@ -2748,9 +2790,25 @@
       }
     }
 
+    function addRealtimeNotification(item) {
+      if (!state.currentUser || !item || item.recipientUsername !== state.currentUser.username) return;
+      if ((state.notifications || []).some(n => n.id === item.id)) return;
+      state.notifications.unshift(Object.assign({
+        read: false,
+        createdAt: new Date().toISOString()
+      }, item));
+      state.unreadNotifications = Number(state.unreadNotifications || 0) + 1;
+      updateUnreadBadges();
+      if (!document.getElementById('notifications-panel')?.classList.contains('hidden')) {
+        renderNotifications();
+      }
+      playBeep(1020, 0.08);
+    }
+
     // MQTT Realtime Broker
     function initMQTT() {
       if (typeof mqtt === 'undefined') return;
+      if (gasEndpointUrl) state.remoteDataLoaded = true;
       try {
         mqttClient = mqtt.connect(MQTT_BROKER, {
           clientId: clientId,
@@ -2778,7 +2836,8 @@
 
             if (topic === TOPICS.POSTS) {
               if (data.type === 'NEW_POST' && data.post) {
-                if (!state.posts.some(p => p.id === data.post.id)) {
+                if (state.users.some(u => u.username === data.post.authorUsername) &&
+                    !state.posts.some(p => p.id === data.post.id)) {
                   state.posts.unshift(data.post);
                   if (state.activeTab === 'feed') renderFeed();
                 }
@@ -2790,6 +2849,20 @@
                 if (target) {
                   if (!target.likes) target.likes = [];
                   if (!target.likes.includes(data.userId)) target.likes.push(data.userId);
+                  if (target.authorUsername === state.currentUser?.username && data.userId !== state.currentUser.username) {
+                    const actor = state.users.find(u => u.username === data.userId);
+                    addRealtimeNotification({
+                      id: 'live_react_' + data.postId + '_' + data.userId,
+                      recipientUsername: state.currentUser.username,
+                      actorUsername: data.userId,
+                      actorName: actor?.name || data.userId,
+                      actorAvatar: actor?.avatar || '',
+                      type: 'post_reaction',
+                      entityId: data.postId,
+                      entityType: 'post',
+                      text: `${actor?.name || data.userId} আপনার পোস্টে রিঅ্যাক্ট করেছেন।`
+                    });
+                  }
                   if (state.activeTab === 'feed') renderFeed();
                 }
               } else if (data.type === 'COMMENT_POST') {
@@ -2797,6 +2870,19 @@
                 if (target) {
                   target.commentsCount = (target.commentsCount || 0) + 1;
                   state.comments.push(data.comment);
+                  if (target.authorUsername === state.currentUser?.username && data.comment.authorUsername !== state.currentUser.username) {
+                    addRealtimeNotification({
+                      id: 'live_comment_' + data.comment.id,
+                      recipientUsername: state.currentUser.username,
+                      actorUsername: data.comment.authorUsername,
+                      actorName: data.comment.authorName,
+                      actorAvatar: data.comment.authorAvatar,
+                      type: 'post_comment',
+                      entityId: data.postId,
+                      entityType: 'post',
+                      text: `${data.comment.authorName} আপনার পোস্টে কমেন্ট করেছেন।`
+                    });
+                  }
                   if (state.activeTab === 'feed') renderFeed();
                 }
               }
@@ -2811,7 +2897,31 @@
                 renderStories();
               }
             } else if (topic === TOPICS.MESSAGES) {
-              if (data.type === 'MESSAGE' && data.message) {
+              if (data.type === 'DIRECT_MESSAGE' && data.message) {
+                const dm = data.message;
+                if (dm.recipientUsername?.toLowerCase() === state.currentUser?.username?.toLowerCase() &&
+                    !state.directMessages.some(m => m.id === dm.id)) {
+                  state.directMessages.push(dm);
+                  const actor = state.users.find(u => u.username === dm.senderUsername);
+                  addRealtimeNotification({
+                    id: 'live_dm_' + dm.id,
+                    recipientUsername: state.currentUser.username,
+                    actorUsername: dm.senderUsername,
+                    actorName: actor?.name || dm.senderUsername,
+                    actorAvatar: actor?.avatar || '',
+                    type: 'direct_message',
+                    entityId: dm.id,
+                    entityType: 'direct_message',
+                    text: `${actor?.name || dm.senderUsername} আপনাকে একটি মেসেজ পাঠিয়েছেন।`
+                  });
+                  if (state.activeTab === 'inbox' && state.activePeerUsername === dm.senderUsername) {
+                    selectInboxPeer(dm.senderUsername);
+                  } else {
+                    updateUnreadBadges();
+                    renderInbox();
+                  }
+                }
+              } else if (data.type === 'MESSAGE' && data.message) {
                 if (!state.messages.some(m => m.id === data.message.id)) {
                   state.messages.push(data.message);
                   if (state.activeTab === 'chat') renderGlobalChat();
@@ -2837,7 +2947,8 @@
               } else if (data.type === 'RESPONSE_SYNC' && data.targetId === clientId) {
                 if (Array.isArray(data.posts)) {
                   data.posts.forEach(rp => {
-                    if (!state.posts.some(p => p.id === rp.id)) {
+                    if (state.users.some(u => u.username === rp.authorUsername) &&
+                        !state.posts.some(p => p.id === rp.id)) {
                       state.posts.push(rp);
                     }
                   });
@@ -2882,6 +2993,7 @@
     function recordPeerPresence(peerUser) {
       if (!peerUser || !peerUser.username) return;
       if (state.currentUser && peerUser.username === state.currentUser.username) return;
+      if (state.remoteDataLoaded && !state.users.some(u => u.username === peerUser.username)) return;
 
       activeOnlinePeers.set(peerUser.username, {
         user: peerUser,
@@ -2889,7 +3001,7 @@
       });
 
       const existing = state.users.find(u => u.username === peerUser.username);
-      if (!existing) {
+      if (!existing && !state.remoteDataLoaded) {
         state.users.push(peerUser);
       } else {
         Object.assign(existing, peerUser);
@@ -2952,7 +3064,10 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const maxDim = 900;
+          // Google Sheets cells have a size limit. Keep profile avatars small
+          // enough to persist reliably while leaving post/media uploads larger.
+          const isProfileImage = target === 'ep-avatar' || target === 'auth';
+          const maxDim = isProfileImage ? 450 : 900;
           let w = img.width;
           let h = img.height;
           if (w > maxDim || h > maxDim) {
@@ -2963,7 +3078,16 @@
           canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          let dataUrl = canvas.toDataURL('image/jpeg', isProfileImage ? 0.65 : 0.8);
+
+          // Stay below the spreadsheet cell limit for noisy/high-detail photos.
+          if (isProfileImage && dataUrl.length > 45000) {
+            let quality = 0.55;
+            while (dataUrl.length > 45000 && quality >= 0.35) {
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+              quality -= 0.1;
+            }
+          }
 
           if (target === 'composer') {
             document.getElementById('composer-preview-img').src = dataUrl;
@@ -3067,6 +3191,43 @@
 
       const reader = new FileReader();
       reader.onload = function(e) {
+        const finishStory = function(dataUrl) {
+          const storyText = (prompt('স্টোরির ক্যাপশন লিখুন (ঐচ্ছিক):') || '').trim();
+          const musicUrl = (prompt('ইনস্টাগ্রাম স্টোরির গানের direct MP3/HLS লিংক দিন (ঐচ্ছিক):') || '').trim();
+          const musicTitle = musicUrl ? (prompt('গানের নাম লিখুন (ঐচ্ছিক):') || 'Original audio').trim() : '';
+          const musicArtist = musicUrl ? (prompt('শিল্পীর নাম লিখুন (ঐচ্ছিক):') || state.currentUser.name).trim() : '';
+          const newStory = {
+            id: 'story_' + Date.now(),
+            authorId: state.currentUser.id,
+            authorName: state.currentUser.name,
+            authorUsername: state.currentUser.username,
+            authorAvatar: state.currentUser.avatar,
+            mediaUrl: dataUrl,
+            text: storyText,
+            bgGradient: '',
+            views: [state.currentUser.username],
+            musicUrl: musicUrl,
+            musicTitle: musicTitle,
+            musicArtist: musicArtist,
+            reactions: {},
+            replies: [],
+            createdAt: new Date().toISOString()
+          };
+          if (!state.stories) state.stories = [];
+          state.stories.unshift(newStory);
+          renderStories();
+          toast(musicUrl ? 'গানসহ স্টোরি পোস্ট হয়েছে! 🎵' : 'আপনার স্টোরি পোস্ট হয়েছে! 🌟');
+          playBeep(920, 0.1);
+          if (mqttClient && mqttClient.connected) {
+            mqttClient.publish(TOPICS.STORIES, JSON.stringify({ senderClientId: clientId, type: 'NEW_STORY', story: newStory }));
+          }
+          callBackend('addStory', { story: newStory });
+        };
+
+        if (file.type && file.type.indexOf('video/') === 0) {
+          finishStory(e.target.result);
+          return;
+        }
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
@@ -3077,38 +3238,8 @@
             else { w = Math.round((w * maxDim) / h); h = maxDim; }
           }
           canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-
-          const newStory = {
-            id: 'story_' + Date.now(),
-            authorId: state.currentUser.id,
-            authorName: state.currentUser.name,
-            authorUsername: state.currentUser.username,
-            authorAvatar: state.currentUser.avatar,
-            mediaUrl: dataUrl,
-            text: '',
-            bgGradient: '',
-            views: [state.currentUser.username],
-            createdAt: new Date().toISOString()
-          };
-
-          if (!state.stories) state.stories = [];
-          state.stories.unshift(newStory);
-          renderStories();
-          toast('আপনার স্টোরি পোস্ট হয়েছে! 🌟');
-          playBeep(920, 0.1);
-
-          if (mqttClient && mqttClient.connected) {
-            mqttClient.publish(TOPICS.STORIES, JSON.stringify({
-              senderClientId: clientId,
-              type: 'NEW_STORY',
-              story: newStory
-            }));
-          }
-
-          callBackend('addStory', { story: newStory });
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          finishStory(canvas.toDataURL('image/jpeg', 0.82));
         };
         img.src = e.target.result;
       };
@@ -3198,10 +3329,39 @@
 
       const body = document.getElementById('story-viewer-body');
       const img = document.getElementById('story-viewer-img');
+      const video = document.getElementById('story-viewer-video');
+      const audio = document.getElementById('story-viewer-audio');
       const caption = document.getElementById('story-viewer-caption');
       const txtSlide = document.getElementById('story-viewer-text-slide');
 
-      if (story.mediaUrl) {
+      if (video) {
+        video.pause();
+        video.removeAttribute('src');
+        video.classList.add('hidden');
+      }
+      if (audio) {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.classList.add('hidden');
+      }
+
+      if (story.mediaUrl && /\.(mp4|webm|ogg)(\?|$)/i.test(story.mediaUrl) || (story.mediaUrl || '').indexOf('data:video/') === 0) {
+        img.classList.add('hidden');
+        if (video) {
+          video.src = story.mediaUrl;
+          video.classList.remove('hidden');
+          video.muted = false;
+          video.play().catch(() => {});
+        }
+        body.className = 'w-full h-full flex items-center justify-center relative p-2 bg-black select-none';
+        if (story.text) {
+          caption.innerText = story.text;
+          caption.classList.remove('hidden');
+        } else {
+          caption.classList.add('hidden');
+        }
+        txtSlide.classList.add('hidden');
+      } else if (story.mediaUrl) {
         img.src = story.mediaUrl;
         img.classList.remove('hidden');
         body.className = 'w-full h-full flex items-center justify-center relative p-2 bg-black select-none';
@@ -3218,6 +3378,17 @@
         body.className = 'w-full h-full flex items-center justify-center relative p-6 select-none bg-gradient-to-tr ' + (story.bgGradient || 'from-indigo-600 via-purple-600 to-pink-500');
         txtSlide.innerText = story.text || '✨';
         txtSlide.classList.remove('hidden');
+      }
+
+      if (audio && story.musicUrl) {
+        audio.src = story.musicUrl;
+        audio.loop = true;
+        audio.volume = 0.85;
+        audio.classList.remove('hidden');
+        audio.play().catch(() => {});
+        const musicLabel = `${story.musicTitle || 'Original audio'}${story.musicArtist ? ' • ' + story.musicArtist : ''}`;
+        caption.innerText = story.text ? `${story.text}\n🎵 ${musicLabel}` : `🎵 ${musicLabel}`;
+        caption.classList.remove('hidden');
       }
 
       if (state.currentUser && !story.views?.includes(state.currentUser.username)) {
@@ -3251,6 +3422,65 @@
       lucide.createIcons();
     }
 
+    function reactToCurrentStory(emoji) {
+      if (!state.currentUser) {
+        openAuthModal('login');
+        return;
+      }
+      const story = state.stories[activeStoryIndex];
+      if (!story) return;
+      if (!story.reactions) story.reactions = {};
+      const user = state.currentUser.username;
+      let previous = '';
+      Object.keys(story.reactions).forEach(key => {
+        if (Array.isArray(story.reactions[key])) {
+          if (story.reactions[key].includes(user)) previous = key;
+          story.reactions[key] = story.reactions[key].filter(u => u !== user);
+        }
+      });
+      if (previous !== emoji) {
+        if (!story.reactions[emoji]) story.reactions[emoji] = [];
+        story.reactions[emoji].push(user);
+      }
+      const box = document.getElementById('story-reaction-float-box');
+      if (box && previous !== emoji) {
+        const float = document.createElement('span');
+        float.className = 'floating-reaction text-4xl';
+        float.style.left = (20 + Math.random() * 60) + '%';
+        float.style.bottom = '80px';
+        float.textContent = emoji;
+        box.appendChild(float);
+        setTimeout(() => float.remove(), 1600);
+      }
+      toast(previous === emoji ? 'স্টোরি রিঅ্যাকশন সরানো হয়েছে' : `স্টোরিতে ${emoji} রিঅ্যাক্ট দিয়েছেন`);
+      callBackend('reactToStory', { storyId: story.id, username: user, emoji: emoji });
+    }
+
+    function sendStoryReply() {
+      if (!state.currentUser) {
+        openAuthModal('login');
+        return;
+      }
+      const story = state.stories[activeStoryIndex];
+      const input = document.getElementById('story-reply-input');
+      const text = (input?.value || '').trim();
+      if (!story || !text) return;
+      if (!story.replies) story.replies = [];
+      const reply = {
+        id: 'sr_' + Date.now(),
+        storyId: story.id,
+        authorUsername: state.currentUser.username,
+        authorName: state.currentUser.name,
+        authorAvatar: state.currentUser.avatar,
+        text: text,
+        createdAt: new Date().toISOString()
+      };
+      story.replies.push(reply);
+      input.value = '';
+      toast('স্টোরিতে রিপ্লাই পাঠানো হয়েছে 💬');
+      callBackend('addStoryReply', { reply: reply });
+    }
+
     function nextStory(e) {
       if (e) e.stopPropagation();
       clearTimeout(storyTimer);
@@ -3273,6 +3503,8 @@
 
     function closeStoryModal() {
       clearTimeout(storyTimer);
+      document.getElementById('story-viewer-video')?.pause();
+      document.getElementById('story-viewer-audio')?.pause();
       const modal = document.getElementById('modal-story-viewer');
       if (modal) modal.classList.add('hidden');
       renderStories();
@@ -3317,7 +3549,8 @@
         return;
       }
 
-      container.innerHTML = state.posts.map(p => {
+      const visiblePosts = state.posts.slice(0, state.feedLimit || 10);
+      container.innerHTML = visiblePosts.map(p => {
         const isMe = p.authorUsername === state.currentUser?.username;
         const hasLiked = p.likes && p.likes.includes(state.currentUser?.username);
         const postComments = state.comments.filter(c => c.postId === p.id);
@@ -3424,7 +3657,22 @@
         `;
       }).join('');
 
+      if (visiblePosts.length < state.posts.length) {
+        container.insertAdjacentHTML('beforeend', `
+          <div class="flex justify-center pt-2">
+            <button onclick="loadMorePosts()" class="px-5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:border-indigo-500 hover:shadow-sm transition-all">
+              পুরনো পোস্ট দেখুন (${toBangla(state.posts.length - visiblePosts.length)}টি বাকি)
+            </button>
+          </div>
+        `);
+      }
+
       lucide.createIcons();
+    }
+
+    function loadMorePosts() {
+      state.feedLimit = Math.min((state.feedLimit || 10) + 10, state.posts.length);
+      renderFeed();
     }
 
     function toggleCommentsBox(postId) {
@@ -3562,6 +3810,20 @@
     let activeReelCommentId = null;
     let reelMuted = true;
 
+    function getYouTubeEmbedUrl(url) {
+      try {
+        const parsed = new URL(url);
+        if (parsed.hostname.includes('youtu.be')) {
+          return 'https://www.youtube.com/embed/' + parsed.pathname.replace('/', '');
+        }
+        if (parsed.pathname.includes('/embed/')) return url.split('?')[0];
+        const id = parsed.searchParams.get('v') || (parsed.pathname.match(/\/shorts\/([^/]+)/) || [])[1];
+        return id ? 'https://www.youtube.com/embed/' + id : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
     function scrollReelsContainer(dir) {
       const container = document.getElementById('reels-snap-feed');
       if (container) {
@@ -3598,24 +3860,27 @@
       }
 
       container.innerHTML = state.reels.map((r, idx) => {
+        const author = r.authorUsername || r.author || '';
+        const avatar = r.authorAvatar || r.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100';
         const isLiked = r.likes && state.currentUser && r.likes.includes(state.currentUser.username);
         const likeCount = r.likes ? r.likes.length : 0;
         const commentsCount = r.comments ? r.comments.length : 0;
         
         // reactions summary
         const reactionsObj = r.reactions || {};
-        const totalReactions = Object.values(reactionsObj).reduce((a, b) => a + b, 0);
+        const totalReactions = Object.values(reactionsObj).reduce((a, b) => a + (Array.isArray(b) ? b.length : Number(b || 0)), 0);
 
         // check video type
         const isEmbed = r.videoUrl && (r.videoUrl.includes('youtube.com') || r.videoUrl.includes('youtu.be'));
         const embedUrl = isEmbed ? getYouTubeEmbedUrl(r.videoUrl) : null;
+        const isDirectVideo = r.videoUrl && /\.(mp4|webm|ogg)(\?.*)?$/i.test(r.videoUrl);
 
         return `
           <div class="snap-item relative w-full h-[78vh] sm:h-[680px] bg-slate-950 flex items-center justify-center overflow-hidden border-b border-slate-900" id="reel-card-${r.id}">
             <!-- Media Layer -->
             ${embedUrl ? `
               <iframe src="${embedUrl}?autoplay=0&loop=1&controls=0&modestbranding=1" class="w-full h-full object-cover border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope" allowfullscreen></iframe>
-            ` : `
+            ` : isDirectVideo ? `
               <video 
                 id="reel-vid-${r.id}"
                 src="${r.videoUrl || 'https://assets.mixkit.co/videos/preview/mixkit-vertical-portrait-of-a-happy-woman-smiling-at-the-camera-40787-large.mp4'}" 
@@ -3625,6 +3890,12 @@
                 muted 
                 onclick="this.paused ? this.play() : this.pause()"
               ></video>
+            ` : `
+              <div class="w-full h-full flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-900 via-purple-950 to-pink-950 p-8 text-center text-white">
+                <i data-lucide="external-link" class="w-12 h-12 text-pink-400"></i>
+                <div class="text-sm font-bold">এই প্ল্যাটফর্মের ভিডিও এখানে এম্বেড করা যায় না</div>
+                <a href="${r.videoUrl || '#'}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 rounded-xl text-xs font-bold">ভিডিওটি খুলুন ↗</a>
+              </div>
             `}
 
             <!-- Top Header gradient shadow -->
@@ -3638,11 +3909,11 @@
             <!-- Bottom Information Layer -->
             <div class="absolute bottom-4 inset-x-4 z-20 text-white space-y-2.5 pr-14 pointer-events-none">
               <div class="flex items-center gap-2 pointer-events-auto">
-                <img onclick="switchTab('profile'); showProfile('${r.author}')" src="${r.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" class="w-9 h-9 rounded-full object-cover ring-2 ring-white/60 cursor-pointer">
+                <img onclick="switchTab('profile'); showProfile('${author}')" src="${avatar}" class="w-9 h-9 rounded-full object-cover ring-2 ring-white/60 cursor-pointer">
                 <div>
-                  <div onclick="switchTab('profile'); showProfile('${r.author}')" class="text-xs font-bold drop-shadow hover:underline cursor-pointer flex items-center gap-1.5">
-                    <span>${r.authorName || r.author}</span>
-                    <span class="text-[10px] text-pink-400">@${r.author}</span>
+                  <div onclick="switchTab('profile'); showProfile('${author}')" class="text-xs font-bold drop-shadow hover:underline cursor-pointer flex items-center gap-1.5">
+                    <span>${r.authorName || author}</span>
+                    <span class="text-[10px] text-pink-400">@${author}</span>
                   </div>
                 </div>
               </div>
@@ -3655,7 +3926,7 @@
               <!-- Audio tag with spinning disc -->
               <div class="flex items-center gap-2 text-[10px] text-white/80 pointer-events-auto">
                 <i data-lucide="music" class="w-3 h-3 text-pink-400"></i>
-                <span class="truncate max-w-[160px]">অরিজিনাল অডিও • ${r.authorName || r.author}</span>
+                <span class="truncate max-w-[160px]">অরিজিনাল অডিও • ${r.authorName || author}</span>
               </div>
             </div>
 
@@ -3704,7 +3975,7 @@
 
               <!-- Spinning Music Disc -->
               <div class="w-9 h-9 rounded-full bg-slate-900 ring-2 ring-white/40 flex items-center justify-center spin-disc overflow-hidden shadow-lg mt-1">
-                <img src="${r.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" class="w-full h-full object-cover">
+                <img src="${avatar}" class="w-full h-full object-cover">
               </div>
             </div>
           </div>
@@ -3722,13 +3993,37 @@
       const reel = (state.reels || []).find(r => r.id === reelId);
       if (reel) {
         if (!reel.reactions) reel.reactions = {};
-        reel.reactions[emoji] = (reel.reactions[emoji] || 0) + 1;
+        const user = state.currentUser.username;
+        let previous = '';
+        Object.keys(reel.reactions).forEach(key => {
+          const bucket = Array.isArray(reel.reactions[key]) ? reel.reactions[key] : [];
+          if (bucket.includes(user)) previous = key;
+          reel.reactions[key] = bucket.filter(u => u !== user);
+        });
+        if (previous !== emoji) {
+          if (!reel.reactions[emoji]) reel.reactions[emoji] = [];
+          reel.reactions[emoji].push(user);
+        }
         renderReels();
-        showToast(`রিলসে ${emoji} প্রতিক্রিয়া দেওয়া হয়েছে!`);
-        
-        // GAS backend sync
-        callBackend('reactToReel', { reelId: reelId, username: state.currentUser.username, emoji: emoji });
+        showToast(previous === emoji ? 'রিলস রিঅ্যাকশন সরানো হয়েছে' : `রিলসে ${emoji} প্রতিক্রিয়া দেওয়া হয়েছে!`);
+        callBackend('reactToReel', { reelId: reelId, username: user, emoji: emoji });
       }
+    }
+
+    function toggleLikeReel(reelId) {
+      if (!state.currentUser) {
+        openAuthModal('login');
+        return;
+      }
+      const reel = (state.reels || []).find(r => r.id === reelId);
+      if (!reel) return;
+      if (!reel.likes) reel.likes = [];
+      const user = state.currentUser.username;
+      const idx = reel.likes.indexOf(user);
+      if (idx > -1) reel.likes.splice(idx, 1);
+      else reel.likes.push(user);
+      renderReels();
+      callBackend('toggleReelLike', { reelId: reelId, username: user });
     }
 
     function openReelComments(reelId) {
@@ -3778,6 +4073,7 @@
         if (!reel.comments) reel.comments = [];
         reel.comments.push({
           id: 'rc_' + Date.now(),
+          reelId: reelId,
           author: state.currentUser.username,
           name: state.currentUser.name,
           avatar: state.currentUser.avatar,
@@ -3787,6 +4083,7 @@
         inp.value = '';
         openReelComments(activeReelCommentId);
         showToast('মন্তব্য যুক্ত করা হয়েছে!');
+        callBackend('addReelComment', { comment: reel.comments[reel.comments.length - 1] });
       }
     }
 
@@ -3806,6 +4103,10 @@ function openCreateReelModal() {
     }
 
     function publishReel() {
+      if (!state.currentUser) {
+        openAuthModal('login');
+        return;
+      }
       const url = document.getElementById('reel-url').value.trim();
       const title = document.getElementById('reel-title').value.trim();
       if (!url) { toast('ভিডিও লিংক দিন!'); return; }
@@ -3819,6 +4120,8 @@ function openCreateReelModal() {
         videoUrl: url,
         platform: 'web',
         likes: [],
+        reactions: {},
+        comments: [],
         time: new Date().toISOString()
       };
 
@@ -4012,31 +4315,49 @@ function openCreateReelModal() {
 
     // INBOX & 1-ON-1 DIRECT MESSAGING
     function renderInbox() {
+      if (!state.currentUser) return;
       const list = document.getElementById('inbox-users-list');
       const peers = state.users.filter(u => u.username !== state.currentUser.username);
 
       if (peers.length === 0) {
         list.innerHTML = '<div class="p-4 text-xs text-slate-400 text-center">কোনো ইউজার নেই</div>';
+        updateUnreadBadges();
         return;
       }
 
-      list.innerHTML = peers.map(u => `
+      list.innerHTML = peers.map(u => {
+        const unread = (state.directMessages || []).filter(m =>
+          (m.senderUsername || '').toLowerCase() === u.username.toLowerCase() &&
+          (m.recipientUsername || '').toLowerCase() === state.currentUser.username.toLowerCase() &&
+          !m.read
+        ).length;
+        return `
         <div onclick="selectInboxPeer('${u.username}')" class="p-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer flex items-center gap-2.5 transition-colors">
           <img src="${u.avatar}" class="w-8 h-8 rounded-full object-cover">
           <div class="flex-1 min-w-0">
             <div class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">${u.name}</div>
             <div class="text-[10px] text-slate-400">@${u.username}</div>
           </div>
+          ${unread ? `<span class="min-w-5 h-5 px-1 rounded-full bg-indigo-600 text-white text-[10px] leading-5 text-center font-bold">${unread > 99 ? '৯৯+' : toBangla(unread)}</span>` : ''}
         </div>
-      `).join('');
+      `;
+      }).join('');
 
-      if (!state.activePeerUsername && peers[0]) {
-        selectInboxPeer(peers[0].username);
-      }
+      updateUnreadBadges();
     }
 
     function selectInboxPeer(username) {
+      if (!state.currentUser) return;
       state.activePeerUsername = username;
+      const currentUsername = state.currentUser.username.toLowerCase();
+      const peerUsername = username.toLowerCase();
+      state.directMessages.forEach(m => {
+        if ((m.recipientUsername || '').toLowerCase() === currentUsername &&
+            (m.senderUsername || '').toLowerCase() === peerUsername) {
+          m.read = true;
+        }
+      });
+      updateUnreadBadges();
       const peer = state.users.find(u => u.username === username);
       if (peer) {
         document.getElementById('inbox-peer-name').innerText = peer.name;
@@ -4045,6 +4366,16 @@ function openCreateReelModal() {
       }
 
       renderInboxMessages();
+      renderInbox();
+      callBackend('markDirectMessagesRead', {
+        username: state.currentUser.username,
+        peerUsername: username
+      }, function(res) {
+        if (res && res.success && res.unreadCount !== undefined) {
+          state.unreadDirectMessages = Number(res.unreadCount || 0);
+          updateUnreadBadges();
+        }
+      });
     }
 
     function renderInboxMessages() {
@@ -4330,8 +4661,13 @@ function openCreateReelModal() {
       }).join('');
     }
 
-    function showProfile(username) {
+    function showProfile(username, updateUrl = true) {
       if (!username) return;
+      username = String(username).replace(/^@/, '').trim().toLowerCase();
+      if (updateUrl && window.location.hash !== '#' + username) {
+        // Handle URLs are shareable: https://site.example/#sakib
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + '#' + encodeURIComponent(username));
+      }
       let u = (state.users || []).find(x => (x.username || '').toLowerCase() === username.toLowerCase());
       if (!u && state.currentUser && username.toLowerCase() === (state.currentUser.username || '').toLowerCase()) {
         u = state.currentUser;
@@ -4591,18 +4927,109 @@ function openCreateReelModal() {
         newPassword: document.getElementById('ep-password').value.trim()
       };
 
-      Object.assign(state.currentUser, updated);
-      localStorage.setItem('rsn_user_v2', JSON.stringify(state.currentUser));
+      state.currentUser = persistUserSession(Object.assign({}, state.currentUser, updated));
       updateUserHeader();
       closeModal('modal-edit-profile');
       showProfile(state.currentUser.username);
       toast('প্রোফাইল তথ্য সফলভাবে সেভ হয়েছে! ✓');
 
-      callBackend('updateProfile', { userData: updated });
+      callBackend('updateProfile', { userData: updated }, function(res) {
+        if (res && res.success && res.user) {
+          state.currentUser = persistUserSession(Object.assign({}, state.currentUser, res.user));
+          updateUserHeader();
+        } else if (res && !res.success) {
+          toast('প্রোফাইল সার্ভারে সেভ হয়নি। আবার চেষ্টা করুন।');
+        }
+      }, function() {
+        toast('প্রোফাইল সার্ভারে সেভ হয়নি। আবার চেষ্টা করুন।');
+      });
     }
 
     // AUTH: LOGIN & SIGNUP
     let authMode = 'login';
+    const DEFAULT_PROFILE_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80';
+    const authErrorMessages = {
+      USERNAME_REQUIRED: 'ইউজারনেম/হ্যান্ডেল লিখুন।',
+      INVALID_USERNAME: 'ইউজারনেম/হ্যান্ডেল ৩–৩০ অক্ষরের হতে হবে; শুধু ইংরেজি ছোট হাতের অক্ষর, সংখ্যা ও _ ব্যবহার করুন।',
+      USERNAME_TAKEN: 'এই ইউজারনেম/হ্যান্ডেলটি আগে থেকেই ব্যবহার করা আছে। অন্যটি বেছে নিন।',
+      NAME_REQUIRED: 'আপনার পূর্ণ নাম লিখুন।',
+      INVALID_NAME: 'নাম ২ থেকে ১০০ অক্ষরের মধ্যে হতে হবে।',
+      NAME_TAKEN: 'এই নামে ইতিমধ্যে একটি একাউন্ট আছে। অন্য নাম ব্যবহার করুন।',
+      PASSWORD_REQUIRED: 'পাসওয়ার্ড লিখুন।',
+      INVALID_PASSWORD: 'পাসওয়ার্ড ভুল হয়েছে। আবার চেষ্টা করুন।',
+      USER_NOT_FOUND: 'এই ইউজারনেম/হ্যান্ডেল দিয়ে কোনো একাউন্ট পাওয়া যায়নি।',
+      SERVER_ERROR: 'সার্ভারের সমস্যা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।'
+    };
+
+    function avatarStorageKey(username) {
+      return 'rsn_avatar_' + String(username || '').replace(/^@+/, '').trim().toLowerCase();
+    }
+
+    function persistUserSession(user) {
+      if (!user) return null;
+      const sessionUser = Object.assign({}, user);
+      const key = avatarStorageKey(sessionUser.username);
+      const rememberedAvatar = key ? localStorage.getItem(key) : '';
+      const incomingAvatar = String(sessionUser.avatar || '');
+
+      // If an older backend row still contains the default avatar, keep the
+      // previously saved custom avatar on this browser until the row is fixed.
+      if ((!incomingAvatar || incomingAvatar === DEFAULT_PROFILE_AVATAR) && rememberedAvatar) {
+        sessionUser.avatar = rememberedAvatar;
+      }
+      if (sessionUser.avatar && key) {
+        localStorage.setItem(key, sessionUser.avatar);
+      }
+      localStorage.setItem('rsn_user_v2', JSON.stringify(sessionUser));
+      return sessionUser;
+    }
+
+    function restoreUserSession(user) {
+      return persistUserSession(user);
+    }
+
+    function clearAuthError() {
+      const el = document.getElementById('auth-error');
+      if (!el) return;
+      el.innerText = '';
+      el.classList.add('hidden');
+    }
+
+    function showAuthError(message) {
+      const text = message || 'অনুরোধটি সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।';
+      const el = document.getElementById('auth-error');
+      if (el) {
+        el.innerText = text;
+        el.classList.remove('hidden');
+      }
+      toast(text);
+    }
+
+    function getAuthErrorMessage(res, fallback) {
+      if (res && res.errorCode && authErrorMessages[res.errorCode]) {
+        return authErrorMessages[res.errorCode];
+      }
+      return (res && res.error) || fallback;
+    }
+
+    function normalizedAuthName(value) {
+      return String(value || '')
+        .normalize('NFKC')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
+    }
+
+    function completeSignup(user) {
+      state.currentUser = persistUserSession(user);
+      window.tempAuthAvatar = null;
+      updateUserHeader();
+      closeModal('modal-auth');
+      toast(`স্বাগতম @${user.username}! সাইনআপ সম্পন্ন হয়েছে।`);
+      renderCurrentTab();
+    }
+
     function openAuthModal(mode = 'login') {
       authMode = mode;
       setAuthMode(mode);
@@ -4615,8 +5042,11 @@ function openCreateReelModal() {
       document.getElementById('auth-title').innerText = isLogin ? 'লগইন করুন' : 'নতুন একাউন্ট খুলুন';
       document.getElementById('btn-auth-submit').innerText = isLogin ? 'লগইন করুন' : 'সাইনআপ ও লগইন';
       document.getElementById('auth-signup-fields').classList.toggle('hidden', isLogin);
+      const nameField = document.getElementById('auth-name');
+      if (nameField) nameField.required = !isLogin;
       document.getElementById('btn-auth-login-tab').className = isLogin ? 'flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'flex-1 py-2 rounded-lg text-slate-500';
       document.getElementById('btn-auth-signup-tab').className = !isLogin ? 'flex-1 py-2 rounded-lg bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'flex-1 py-2 rounded-lg text-slate-500';
+      clearAuthError();
     }
 
     function toggleAuthMode() {
@@ -4635,53 +5065,132 @@ function openCreateReelModal() {
 
     function handleAuthSubmit(e) {
       e.preventDefault();
-      const username = document.getElementById('auth-username').value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-      const pass = document.getElementById('auth-password').value.trim();
+      clearAuthError();
+      const rawUsername = document.getElementById('auth-username').value || '';
+      const username = rawUsername.normalize('NFKC').trim().replace(/^@+/, '').toLowerCase();
+      const pass = document.getElementById('auth-password').value || '';
 
-      if (!username || !pass) { toast('ইউজারনেম ও পাসওয়ার্ড লিখুন!'); return; }
+      if (!username) {
+        showAuthError(authErrorMessages.USERNAME_REQUIRED);
+        return;
+      }
+      if (!/^[a-z0-9_]{3,30}$/.test(username)) {
+        showAuthError(authErrorMessages.INVALID_USERNAME);
+        return;
+      }
+      if (!pass) {
+        showAuthError(authErrorMessages.PASSWORD_REQUIRED);
+        return;
+      }
 
       if (authMode === 'signup') {
-        const name = document.getElementById('auth-name').value.trim() || username;
+        const name = (document.getElementById('auth-name').value || '').normalize('NFKC').trim().replace(/\s+/g, ' ');
+        if (!name) {
+          showAuthError(authErrorMessages.NAME_REQUIRED);
+          return;
+        }
+        if (name.length < 2 || name.length > 100) {
+          showAuthError(authErrorMessages.INVALID_NAME);
+          return;
+        }
+        if (pass.length < 4) {
+          showAuthError('পাসওয়ার্ড অন্তত ৪ অক্ষরের হতে হবে।');
+          return;
+        }
+
+        // This is only an immediate UX check. The backend check remains
+        // authoritative because the cached user list can be stale.
+        const localUsernameTaken = (state.users || []).some(u =>
+          String(u.username || '').trim().toLowerCase() === username
+        );
+        if (localUsernameTaken) {
+          showAuthError(authErrorMessages.USERNAME_TAKEN);
+          return;
+        }
+        const nameKey = normalizedAuthName(name);
+        const localNameTaken = (state.users || []).some(u =>
+          normalizedAuthName(u.name) === nameKey
+        );
+        if (localNameTaken) {
+          showAuthError(authErrorMessages.NAME_TAKEN);
+          return;
+        }
+
         const bio = document.getElementById('auth-bio')?.value?.trim() || 'রং সোশ্যাল নেটওয়ার্ক মেম্বার ✨';
         const avatar = window.tempAuthAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80';
 
-        const newUser = {
-          id: 'u_' + Date.now(),
-          username: username,
-          name: name,
-          avatar: avatar,
-          bio: bio,
-          role: 'user',
-          followers: [],
-          following: []
+        const submitBtn = document.getElementById('btn-auth-submit');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        }
+
+        const finishSignupRequest = () => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+          }
         };
 
-        state.currentUser = newUser;
-        localStorage.setItem('rsn_user_v2', JSON.stringify(newUser));
-        updateUserHeader();
-        closeModal('modal-auth');
-        toast(`স্বাগতম @${username}! সাইনআপ সম্পন্ন হয়েছে।`);
-
-        callBackend('signup', { userData: { username: username, password: pass, name: name, avatar: avatar } }, function(res) {
-          if (res && !res.success) toast(res.error || 'সাইনআপ সমস্যা হয়েছে');
-        });
+        if (isGAS || gasEndpointUrl) {
+          toast('তথ্য যাচাই করা হচ্ছে...');
+          callBackend('signup', {
+            userData: { username: username, password: pass, name: name, avatar: avatar, bio: bio }
+          }, function(res) {
+            finishSignupRequest();
+            if (res && res.success && res.user) {
+              completeSignup(res.user);
+            } else {
+              showAuthError(getAuthErrorMessage(res, 'সাইনআপ সম্পন্ন করা যায়নি।'));
+            }
+          }, function() {
+            finishSignupRequest();
+            showAuthError('সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।');
+          });
+        } else {
+          finishSignupRequest();
+          completeSignup({
+            id: 'u_' + Date.now(),
+            username: username,
+            name: name,
+            avatar: avatar,
+            bio: bio,
+            role: 'user',
+            followers: [],
+            following: []
+          });
+        }
       } else {
         // Login
         if (isGAS || gasEndpointUrl) {
+          const loginBtn = document.getElementById('btn-auth-submit');
+          if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.innerText = 'লগইন হচ্ছে...';
+            loginBtn.classList.add('opacity-60', 'cursor-not-allowed');
+          }
+          const finishLoginRequest = () => {
+            if (loginBtn) {
+              loginBtn.disabled = false;
+              loginBtn.innerText = 'লগইন করুন';
+              loginBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
+          };
           toast('যাচাই করা হচ্ছে...');
           callBackend('login', { username: username, password: pass }, function(res) {
+            finishLoginRequest();
             if (res && res.success && res.user) {
-              state.currentUser = res.user;
-              localStorage.setItem('rsn_user_v2', JSON.stringify(res.user));
+              state.currentUser = persistUserSession(res.user);
               updateUserHeader();
               closeModal('modal-auth');
               toast('স্বাগতম @' + res.user.username + '!');
               renderCurrentTab();
             } else {
-              toast((res && res.error) || 'লগইন ব্যর্থ হয়েছে!');
+              showAuthError(getAuthErrorMessage(res, 'লগইন ব্যর্থ হয়েছে।'));
             }
-          }, function(err) {
-            toast('সার্ভার ত্রুটি: ' + err);
+          }, function() {
+            finishLoginRequest();
+            showAuthError('সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না। কিছুক্ষণ পর আবার চেষ্টা করুন।');
           });
         } else {
           // Demo fallback
@@ -4695,7 +5204,7 @@ function openCreateReelModal() {
             followers: [],
             following: []
           };
-          localStorage.setItem('rsn_user_v2', JSON.stringify(state.currentUser));
+          state.currentUser = persistUserSession(state.currentUser);
           updateUserHeader();
           closeModal('modal-auth');
           toast(`লগইন সম্পন্ন: @${username}!`);
@@ -4706,7 +5215,12 @@ function openCreateReelModal() {
     function handleLogout() {
       if (confirm('আপনি কি নিশ্চিত যে লগআউট করতে চান?')) {
         localStorage.removeItem('rsn_user_v2');
+        window.tempAuthAvatar = null;
         state.currentUser = null;
+        state.notifications = [];
+        state.unreadNotifications = 0;
+        state.unreadDirectMessages = 0;
+        updateUnreadBadges();
         updateUserHeader();
         closeModal('modal-settings');
         toast('লগআউট সম্পন্ন হয়েছে।');
